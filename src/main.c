@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   // Flush after every printf
   setbuf(stdout, NULL);
 
   // Uncomment this block to pass the first stage
-  // printf("$ ");
+  printf("$ ");
 
   // Wait for user input
   char input[100];
