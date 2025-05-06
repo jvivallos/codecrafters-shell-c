@@ -18,7 +18,7 @@ int replace_new_line_null_terminator(char *buffer, size_t size)
 int is_exit_command(char *command, size_t size)
 {
   // printf("strcmp %i", strcmp(command, "exit"));
-  return strcmp(command, "exit") == 0;
+  return strcmp(command, "exit 0") == 0;
 }
 
 int main(int argc, char *argv[])
