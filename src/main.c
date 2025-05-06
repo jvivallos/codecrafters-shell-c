@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h> //POSIX functions of dir and files
 
 int replace_new_line_null_terminator(char *buffer, size_t size)
 {
@@ -27,6 +28,35 @@ void execute_echo(char *command, size_t size)
   printf("%s\n", text_start);
 }
 
+int check_for_command(char *folder, char *command)
+{
+  DIR *dp;
+  struct dirent *entry;
+  dp = opendir(folder);
+
+  if (dp != NULL)
+  {
+    while ((entry = readdir(dp)) != NULL)
+    {
+
+      if (strncmp(command, entry->d_name, strlen(entry->d_name)) == 0)
+      {
+        return 1;
+      }
+    }
+    // puts(entry->d_name);
+
+    (void)closedir(dp);
+  }
+  else
+  {
+    // perror("Couldn't open the directory");
+    return 0;
+  }
+
+  return 0;
+}
+
 int execute_type(char *command, size_t size)
 {
   char *command_start = command + 5;
@@ -40,7 +70,24 @@ int execute_type(char *command, size_t size)
   }
   else
   {
-    printf("%s: not found\n", buffer);
+    char *path = getenv("PATH");
+    char *dir_token = strtok(path, ":");
+    int found = 0;
+    while (dir_token)
+    {
+
+      // puts(token);
+      if (check_for_command(dir_token, command))
+      {
+        printf("%s is %s\n", command_start, dir_token);
+        found++;
+        break;
+      }
+      dir_token = strtok(NULL, ":");
+    }
+
+    if (!found)
+      printf("%s: not found\n", command_start);
   }
 
   return 1;
