@@ -30,19 +30,20 @@ void execute_echo(char *command, size_t size)
 int execute_type(char *command, size_t size)
 {
   char *command_start = command + 5;
-  char buffer[10];
-  strncpy(buffer, command_start, 10);
+  char buffer[size - 5];
+  strncpy(buffer, command_start, size - 5);
   if (strncmp(command_start, "echo", 4) == 0 ||
       strncmp(command_start, "exit", 4) == 0 ||
       strncmp(command_start, "type", 4) == 0)
   {
     printf("%s is a shell builtin\n", buffer);
-    return 1;
   }
   else
   {
-    return 0;
+    printf("%s: not found\n", buffer);
   }
+
+  return 1;
 }
 
 int parse_command(char *command, size_t size)
