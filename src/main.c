@@ -20,12 +20,12 @@ int main(int argc, char *argv[])
   setbuf(stdout, NULL);
 
   // Uncomment this block to pass the first stage
-  printf("$ ");
 
   // Wait for user input
   char input[100];
   while (input[0] != 'q')
   {
+    printf("$ ");
     fgets(input, 100, stdin);
     replace_new_line_null_terminator(input, 100);
     printf("%s: command not found\n", input);
