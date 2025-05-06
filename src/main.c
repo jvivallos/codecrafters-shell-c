@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     replace_new_line_null_terminator(input, 100);
     if (is_exit_command(input, 100))
     {
-      break;
+      return 0;
     }
     printf("%s: command not found\n", input);
   }
