@@ -31,12 +31,12 @@ int execute_type(char *command, size_t size)
 {
   char *command_start = command + 5;
   char buffer[10];
-  strncpy(buffer, 10, command_start);
+  strncpy(buffer, command_start, 10);
   if (strncmp(command_start, "echo", 4) == 0 ||
       strncmp(command_start, "exit", 4) == 0 ||
       strncmp(command_start, "type", 4) == 0)
   {
-    printf("%s is a shell builtin");
+    printf("%s is a shell builtin\n", buffer);
     return 1;
   }
   else
