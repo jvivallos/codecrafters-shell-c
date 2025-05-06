@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int replace_new_line_null_terminator(char *buffer, size_t size)
 {
@@ -14,6 +15,11 @@ int replace_new_line_null_terminator(char *buffer, size_t size)
   return 0;
 }
 
+int is_exit_command(char *command, size_t size)
+{
+  return strcmp(command, "exit\n") == 0;
+}
+
 int main(int argc, char *argv[])
 {
   // Flush after every printf
@@ -23,11 +29,15 @@ int main(int argc, char *argv[])
 
   // Wait for user input
   char input[100];
-  while (input[0] != 'q')
+  while (1)
   {
     printf("$ ");
     fgets(input, 100, stdin);
     replace_new_line_null_terminator(input, 100);
+    if (is_exit_command(input, 100))
+    {
+      break;
+    }
     printf("%s: command not found\n", input);
   }
 
