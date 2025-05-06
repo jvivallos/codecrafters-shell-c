@@ -27,12 +27,34 @@ void execute_echo(char *command, size_t size)
   printf("%s\n", text_start);
 }
 
+int execute_type(char *command, size_t size)
+{
+  char *command_start = command + 5;
+  char buffer[10];
+  strncpy(buffer, 10, command_start);
+  if (strncmp(command_start, "echo", 4) == 0 ||
+      strncmp(command_start, "exit", 4) == 0 ||
+      strncmp(command_start, "type", 4) == 0)
+  {
+    printf("%s is a shell builtin");
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
+}
+
 int parse_command(char *command, size_t size)
 {
   if (strncmp(command, "echo ", 5) == 0)
   {
     execute_echo(command, size);
     return 1;
+  }
+  else if (strncmp(command, "type ", 5) == 0)
+  {
+    return execute_type(command, size);
   }
   return 0;
 }
