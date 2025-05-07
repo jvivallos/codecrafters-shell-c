@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h> //POSIX functions of dir and files
+#include <unistd.h>
 
 #define DEBUG 0
 
@@ -30,7 +31,7 @@ void execute_echo(char *command, size_t size)
   printf("%s\n", text_start);
 }
 
-int check_for_command(char *folder, char *command)
+int check_for_command_old(char *folder, char *command)
 {
   DIR *dp;
   struct dirent *entry;
@@ -66,6 +67,25 @@ int check_for_command(char *folder, char *command)
   return 0;
 }
 
+int check_for_command(char *folder, char *command)
+{
+
+  char full_path[1024];
+  snprintf(full_path, sizeof(full_path), "%s/%s", folder, command);
+
+  if (DEBUG)
+  {
+    printf("new check for folder %s and command %s\n", full_path, command);
+  }
+
+  if (access(full_path, X_OK) == 0)
+  {
+    return 1;
+  }
+
+  return 0;
+}
+
 int execute_type(char *command, size_t size)
 {
   char *command_start = command + 5;
@@ -79,31 +99,32 @@ int execute_type(char *command, size_t size)
   }
   else
   {
-    char *path = getenv("PATH");
-    char bufferPath[2048];
-    strcpy(bufferPath, path); // had to do this because strtok was destroying the original path
+    char *path = strdup(getenv("PATH"));
+
     if (DEBUG)
     {
       puts(path);
     }
-    char *dir_token = strtok(bufferPath, ":");
+    char *dir_token = strtok(path, ":");
     int found = 0;
 
     while (dir_token)
     {
 
       // puts(token);
-      if (check_for_command(dir_token, command))
+      if (check_for_command(dir_token, command_start))
       {
         printf("%s is %s/%s\n", command_start, dir_token, command_start);
         found++;
         break;
       }
-      dir_token = strtok(NULL, ":");
+      dir_token = strtok(NULL, ":"); // null because the original string is stored in a static variable
     }
 
     if (!found)
       printf("%s: not found\n", command_start);
+
+    free(path);
   }
 
   return 1;
