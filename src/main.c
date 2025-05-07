@@ -81,7 +81,7 @@ int execute_type(char *command, size_t size)
   {
     char *path = getenv("PATH");
     char bufferPath[2048];
-    strcpy(bufferPath, path);
+    strcpy(bufferPath, path); // had to do this because strtok was destroying the original path
     if (DEBUG)
     {
       puts(path);
