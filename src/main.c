@@ -3,6 +3,8 @@
 #include <string.h>
 #include <dirent.h> //POSIX functions of dir and files
 
+#define DEBUG 0
+
 int replace_new_line_null_terminator(char *buffer, size_t size)
 {
   for (int i = 0; i < size; i++)
@@ -33,6 +35,12 @@ int check_for_command(char *folder, char *command)
   DIR *dp;
   struct dirent *entry;
   dp = opendir(folder);
+  int found = 0;
+
+  if (DEBUG)
+  {
+    printf("new check for folder %s and command %s\n", folder, command);
+  }
 
   if (dp != NULL)
   {
@@ -41,12 +49,13 @@ int check_for_command(char *folder, char *command)
 
       if (strncmp(command, entry->d_name, strlen(entry->d_name)) == 0)
       {
-        return 1;
+        found++;
       }
     }
     // puts(entry->d_name);
-
     (void)closedir(dp);
+    if (found)
+      return 1;
   }
   else
   {
@@ -71,15 +80,22 @@ int execute_type(char *command, size_t size)
   else
   {
     char *path = getenv("PATH");
-    char *dir_token = strtok(path, ":");
+    char bufferPath[2048];
+    strcpy(bufferPath, path);
+    if (DEBUG)
+    {
+      puts(path);
+    }
+    char *dir_token = strtok(bufferPath, ":");
     int found = 0;
+
     while (dir_token)
     {
 
       // puts(token);
       if (check_for_command(dir_token, command))
       {
-        printf("%s is %s\n", command_start, dir_token);
+        printf("%s is %s/%s\n", command_start, dir_token, command_start);
         found++;
         break;
       }
