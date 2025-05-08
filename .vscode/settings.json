@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "_dev_t.h": "c"
+        "_dev_t.h": "c",
+        "unistd.h": "c"
     }
 }

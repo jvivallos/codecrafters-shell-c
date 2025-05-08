@@ -4,7 +4,7 @@
 #include <dirent.h> //POSIX functions of dir and files
 #include <unistd.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 int replace_new_line_null_terminator(char *buffer, size_t size)
 {
@@ -130,6 +130,43 @@ int execute_type(char *command, size_t size)
   return 1;
 }
 
+void execute_external(char *command, size_t size)
+{
+
+  int command_end_position = strcspn(command, " ");
+
+  char external_command[command_end_position + 1];
+
+  strncpy(external_command, command, command_end_position);
+  char *parameters = command + command_end_position + 1;
+
+  if (DEBUG)
+  {
+    printf("First space found at %i \n", command_end_position);
+    printf("Program %s with parameters %s\n", external_command, parameters);
+  }
+
+  system(command);
+
+  /*
+
+  while (dir_token)
+  {
+
+    // puts(token);
+    if (check_for_command(dir_token, command_start))
+    {
+      printf("%s is %s/%s\n", command_start, dir_token, command_start);
+      found++;
+      break;
+    }
+    dir_token = strtok(NULL, ":"); // null because the original string is stored in a static variable
+
+
+}
+    */
+}
+
 int parse_command(char *command, size_t size)
 {
   if (strncmp(command, "echo ", 5) == 0)
@@ -140,6 +177,11 @@ int parse_command(char *command, size_t size)
   else if (strncmp(command, "type ", 5) == 0)
   {
     return execute_type(command, size);
+  }
+  else
+  {
+    execute_external(command, size);
+    return 1;
   }
   return 0;
 }
