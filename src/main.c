@@ -130,6 +130,32 @@ int execute_type(char *command, size_t size)
   return 1;
 }
 
+int validate_command_exists(char *command)
+{
+  char *path = strdup(getenv("PATH"));
+
+  if (DEBUG)
+  {
+    puts(path);
+  }
+  char *dir_token = strtok(path, ":");
+  int found = 0;
+
+  while (dir_token)
+  {
+    if (check_for_command(dir_token, command))
+    {
+      free(path);
+      return 1;
+    }
+    dir_token = strtok(NULL, ":"); // null because the original string is stored in a static variable
+  }
+
+  free(path);
+
+  return 0;
+}
+
 void execute_external(char *command, size_t size)
 {
 
@@ -146,25 +172,14 @@ void execute_external(char *command, size_t size)
     printf("Program %s with parameters %s\n", external_command, parameters);
   }
 
-  system(command);
-
-  /*
-
-  while (dir_token)
+  if (!validate_command_exists(external_command))
   {
-
-    // puts(token);
-    if (check_for_command(dir_token, command_start))
-    {
-      printf("%s is %s/%s\n", command_start, dir_token, command_start);
-      found++;
-      break;
-    }
-    dir_token = strtok(NULL, ":"); // null because the original string is stored in a static variable
-
-
-}
-    */
+    printf("%s: command not found\n", external_command);
+  }
+  else
+  {
+    system(command);
+  }
 }
 
 int parse_command(char *command, size_t size)
