@@ -4,7 +4,7 @@
 #include <dirent.h> //POSIX functions of dir and files
 #include <unistd.h>
 
-#define DEBUG 1
+#define DEBUG 0
 
 int replace_new_line_null_terminator(char *buffer, size_t size)
 {
