@@ -1,3 +1,5 @@
+#include "logger.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,6 +7,7 @@
 #include <unistd.h>
 
 #define DEBUG 0
+#define LOGGER_LEVEL 0
 
 int replace_new_line_null_terminator(char *buffer, size_t size)
 {
@@ -86,14 +89,20 @@ int check_for_command(char *folder, char *command)
   return 0;
 }
 
+int is_builtin(char *command)
+{
+  return strncmp(command, "pwd", 3) == 0 ||
+         strncmp(command, "echo", 4) == 0 ||
+         strncmp(command, "exit", 4) == 0 ||
+         strncmp(command, "type", 4) == 0;
+}
+
 int execute_type(char *command, size_t size)
 {
   char *command_start = command + 5;
   char buffer[size - 5];
   strncpy(buffer, command_start, size - 5);
-  if (strncmp(command_start, "echo", 4) == 0 ||
-      strncmp(command_start, "exit", 4) == 0 ||
-      strncmp(command_start, "type", 4) == 0)
+  if (is_builtin(command_start))
   {
     printf("%s is a shell builtin\n", buffer);
   }
@@ -158,7 +167,7 @@ int validate_command_exists(char *command)
 
 void execute_external(char *command, size_t size)
 {
-
+  jv_log("Executing external %s", command);
   int command_end_position = strcspn(command, " ");
 
   char external_command[command_end_position + 1];
@@ -182,6 +191,20 @@ void execute_external(char *command, size_t size)
   }
 }
 
+void execute_pwd()
+{
+  puts(getcwd(NULL, 0));
+}
+
+void execute_builtin(char *command, size_t size)
+{
+  jv_log("Executing builtin %s", command);
+  if (strncmp(command, "pwd", 3) == 0)
+  {
+    execute_pwd();
+  }
+}
+
 int parse_command(char *command, size_t size)
 {
   if (strncmp(command, "echo ", 5) == 0)
@@ -192,6 +215,11 @@ int parse_command(char *command, size_t size)
   else if (strncmp(command, "type ", 5) == 0)
   {
     return execute_type(command, size);
+  }
+  else if (is_builtin(command))
+  {
+    execute_builtin(command, size);
+    return 1;
   }
   else
   {
@@ -205,21 +233,21 @@ int main(int argc, char *argv[])
 {
   // Flush after every printf
   setbuf(stdout, NULL);
-
+  set_logger(LOGGER_LEVEL);
   // Uncomment this block to pass the first stage
 
   // Wait for user input
-  char input[100];
+  char input[150];
   while (1)
   {
     printf("$ ");
     fgets(input, 100, stdin);
-    replace_new_line_null_terminator(input, 100);
-    if (is_exit_command(input, 100))
+    replace_new_line_null_terminator(input, 150);
+    if (is_exit_command(input, 150))
     {
       return 0;
     }
-    if (!parse_command(input, 100))
+    if (!parse_command(input, 150))
     {
       printf("%s: command not found\n", input);
     }
