@@ -207,13 +207,42 @@ void execute_pwd()
   puts(getcwd(NULL, 0));
 }
 
+int search_tilda(char *string)
+{
+  size_t length = strlen(string);
+  for (int i = 0; i < length; i++)
+  {
+    if (string[i] == '~')
+    {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
 void execute_cd(char *command)
 {
   errno = 0;
   char *external_command = extract_command(command);
   char *parameters = command + strlen(external_command) + 1;
 
-  chdir(parameters);
+  // Parameters is null terminated
+  int tilda_pos = search_tilda(parameters);
+
+  if (tilda_pos > -1)
+  {
+    char *home_dir = getenv("HOME");
+    int home_length = strlen(home_dir);
+    char parameters_with_home[strlen(home_dir) + strlen(parameters) + 1];
+    snprintf(parameters_with_home, sizeof(parameters_with_home), "%s%s", home_dir, parameters + tilda_pos + 1);
+    chdir(parameters_with_home);
+  }
+  else
+  {
+    chdir(parameters);
+  }
+
   if (errno == ENOENT)
   {
     printf("cd: %s: No such file or directory\n", parameters);
