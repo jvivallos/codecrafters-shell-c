@@ -171,6 +171,7 @@ void execute_external(char *command, size_t size)
   int command_end_position = strcspn(command, " ");
 
   char external_command[command_end_position + 1];
+  external_command[command_end_position] = '\0';
 
   strncpy(external_command, command, command_end_position);
   char *parameters = command + command_end_position + 1;
