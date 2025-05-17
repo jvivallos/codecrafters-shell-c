@@ -6,8 +6,10 @@
 #include <dirent.h> //POSIX functions of dir and files
 #include <unistd.h>
 
+#include <errno.h>
+
 #define DEBUG 0
-#define LOGGER_LEVEL 0
+#define LOGGER_LEVEL 1
 
 int replace_new_line_null_terminator(char *buffer, size_t size)
 {
@@ -91,7 +93,8 @@ int check_for_command(char *folder, char *command)
 
 int is_builtin(char *command)
 {
-  return strncmp(command, "pwd", 3) == 0 ||
+  return strncmp(command, "cd", 2) == 0 ||
+         strncmp(command, "pwd", 3) == 0 ||
          strncmp(command, "echo", 4) == 0 ||
          strncmp(command, "exit", 4) == 0 ||
          strncmp(command, "type", 4) == 0;
@@ -165,20 +168,27 @@ int validate_command_exists(char *command)
   return 0;
 }
 
+char *extract_command(char *command)
+{
+  int command_end_position = strcspn(command, " ");
+  char *external_command = malloc(command_end_position * sizeof(char));
+  external_command[command_end_position] = '\0';
+  strncpy(external_command, command, command_end_position);
+
+  jv_log("First space found at %i \n", command_end_position);
+
+  return external_command;
+}
+
 void execute_external(char *command, size_t size)
 {
   jv_log("Executing external %s", command);
-  int command_end_position = strcspn(command, " ");
 
-  char external_command[command_end_position + 1];
-  external_command[command_end_position] = '\0';
-
-  strncpy(external_command, command, command_end_position);
-  char *parameters = command + command_end_position + 1;
+  char *external_command = extract_command(command);
+  char *parameters = command + strlen(external_command) + 1;
 
   if (DEBUG)
   {
-    printf("First space found at %i \n", command_end_position);
     printf("Program %s with parameters %s\n", external_command, parameters);
   }
 
@@ -197,12 +207,31 @@ void execute_pwd()
   puts(getcwd(NULL, 0));
 }
 
+void execute_cd(char *command)
+{
+  errno = 0;
+  char *external_command = extract_command(command);
+  char *parameters = command + strlen(external_command) + 1;
+
+  chdir(parameters);
+  if (errno == ENOENT)
+  {
+    printf("cd: %s: No such file or directory\n", parameters);
+  }
+
+  free(external_command);
+}
+
 void execute_builtin(char *command, size_t size)
 {
   jv_log("Executing builtin %s", command);
   if (strncmp(command, "pwd", 3) == 0)
   {
     execute_pwd();
+  }
+  else if (strncmp(command, "cd", 2) == 0)
+  {
+    execute_cd(command);
   }
 }
 
