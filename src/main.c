@@ -9,7 +9,7 @@
 #include <errno.h>
 
 #define DEBUG 0
-#define LOGGER_LEVEL 1
+#define LOGGER_LEVEL 0
 
 int replace_new_line_null_terminator(char *buffer, size_t size)
 {
