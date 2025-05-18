@@ -145,6 +145,10 @@ char *remove_any_quotes(char *original)
             while (buff[0] != quote)
             {
                 jv_log("Char %c", buff[0]);
+                if (buff[0] == '\\' && quote == '"')
+                {
+                    buff++; // we skip scape char and then keep copying normally
+                }
                 clean_string[i] = buff[0];
                 i++;
                 buff++;
