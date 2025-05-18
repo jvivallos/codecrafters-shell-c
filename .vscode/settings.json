@@ -1,6 +1,11 @@
 {
     "files.associations": {
         "_dev_t.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "string.h": "c",
+        "dirent.h": "c",
+        "errno.h": "c",
+        "logger.h": "c",
+        "builtin.h": "c"
     }
 }
