@@ -122,7 +122,21 @@ char *remove_any_quotes(char *original)
 
     while (buff[0] != '\0')
     {
+
         jv_log("Char %c", buff[0]);
+
+        // Handle scape character
+        if (buff[0] == '\\')
+        {
+            jv_log("Entering scape char");
+            buff++;                    // skip scape char
+            clean_string[i] = buff[0]; // copy scaped
+            buff++;
+            i++;
+            continue;
+        }
+
+        // Handle quotes
         if (buff[0] == '\'' || buff[0] == '"')
         {
             char quote = buff[0];
@@ -140,6 +154,7 @@ char *remove_any_quotes(char *original)
             jv_log("Next char is %c", buff[0]);
         }
 
+        // Handle spaces outside quotes
         if (isspace(buff[0]))
         {
             jv_log("Entering space", buff[0]);
