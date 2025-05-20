@@ -3,6 +3,7 @@
 #include <string.h>
 #include <dirent.h> //POSIX functions of dir and files
 #include <unistd.h>
+#include <sys/wait.h>
 
 #include <errno.h>
 
@@ -32,6 +33,25 @@ int is_exit_command(char *command, size_t size)
   return strcmp(command, "exit 0") == 0;
 }
 
+void exec_command(char *argv[])
+{
+  pid_t pid = fork();
+  if (pid == 0)
+  {
+    jv_log("%s", argv[0]);
+    execvp(argv[0], argv);
+    perror("execv");
+    exit(1);
+  }
+  else if (pid < 0)
+    perror("Error forking child process.");
+  else
+  {
+    int status;
+    waitpid(pid, &status, 0);
+  }
+}
+
 void execute_external(char *command, size_t size)
 {
   jv_log("Executing external %s", command);
@@ -50,7 +70,11 @@ void execute_external(char *command, size_t size)
   }
   else
   {
-    system(command);
+    char *argv[40];
+    int status = extract_parameters(command, argv);
+
+    // system(command);
+    exec_command(argv);
   }
 }
 

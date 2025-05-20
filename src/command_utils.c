@@ -10,6 +10,8 @@
 
 #define DEBUG 0
 
+#define MAX_INPUT_PARAMETERS 10
+
 int check_for_command(char *folder, char *command)
 {
 
@@ -57,12 +59,48 @@ int validate_command_exists(char *command)
 
 char *extract_command(char *command)
 {
-    int command_end_position = strcspn(command, " ");
+    int command_end_position = -1;
+
+    if (command[0] == '\'' || command[0] == '"')
+    {
+        char quote = command[0];
+        char *search = command + 1;
+        int i = 1; // it starts in one to compensate the +1 before
+        while (search[0] != quote)
+        {
+            search++;
+            i++;
+        }
+        command_end_position = i + 1; // this one is to copy the quote not skip it
+    }
+    else
+    {
+        command_end_position = strcspn(command, " ");
+    }
+    jv_log("End of command at %i", command_end_position);
     char *external_command = malloc(command_end_position * sizeof(char));
     external_command[command_end_position] = '\0';
     strncpy(external_command, command, command_end_position);
 
-    jv_log("First space found at %i \n", command_end_position);
-
+    jv_log("Command is %s", external_command);
     return external_command;
+}
+
+int extract_parameters(char *command, char *argv[])
+{
+    char *path = strdup(command);
+    int i = 0;
+
+    char *token = strtok(command, " ");
+    while (token != NULL)
+    {
+        argv[i++] = token;
+        token = strtok(NULL, " ");
+    }
+
+    argv[i] = NULL; // Null-terminate the argument list
+
+    free(path);
+
+    return 1;
 }
