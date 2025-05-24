@@ -38,7 +38,7 @@ void exec_command(char *argv[])
   pid_t pid = fork();
   if (pid == 0)
   {
-    jv_log("%s", argv[0]);
+    jv_log("command %s", argv[0]);
     execvp(argv[0], argv);
     perror("execv");
     exit(1);
@@ -71,10 +71,10 @@ void execute_external(char *command, size_t size)
   else
   {
     char *argv[40];
-    int status = extract_parameters(command, argv);
+    // int status = extract_parameters(command, argv);
 
-    // system(command);
-    exec_command(argv);
+    system(command);
+    // exec_command(argv);
   }
 }
 

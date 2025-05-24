@@ -60,18 +60,20 @@ int validate_command_exists(char *command)
 char *extract_command(char *command)
 {
     int command_end_position = -1;
+    int quote_space_jump = 0;
 
     if (command[0] == '\'' || command[0] == '"')
     {
         char quote = command[0];
         char *search = command + 1;
-        int i = 1; // it starts in one to compensate the +1 before
+        int i = 0; // it starts in one to compensate the +1 before
         while (search[0] != quote)
         {
             search++;
             i++;
         }
-        command_end_position = i + 1; // this one is to copy the quote not skip it
+        quote_space_jump = 1;
+        command_end_position = i; // this one is to copy the quote not skip it
     }
     else
     {
@@ -80,7 +82,7 @@ char *extract_command(char *command)
     jv_log("End of command at %i", command_end_position);
     char *external_command = malloc(command_end_position * sizeof(char));
     external_command[command_end_position] = '\0';
-    strncpy(external_command, command, command_end_position);
+    strncpy(external_command, command + quote_space_jump, command_end_position);
 
     jv_log("Command is %s", external_command);
     return external_command;
